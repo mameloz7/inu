@@ -2,13 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>わんバトル</title>
+<title>わんバトル完全版</title>
 
 <style>
 body {
   font-family: sans-serif;
   text-align: center;
-  background: #f0f8ff;
+  background: linear-gradient(#aee1f9, #e0f7fa);
 }
 
 .container {
@@ -20,23 +20,33 @@ button {
   margin: 5px;
   padding: 10px;
   font-size: 16px;
+  border-radius: 10px;
 }
 
 .box {
   border: 2px solid #333;
   padding: 10px;
   margin: 10px;
+  background: white;
+  border-radius: 15px;
 }
 
 .hp-bar {
   height: 20px;
   background: green;
+  border-radius: 10px;
+  transition: 0.3s;
 }
 
 img {
-  width: 150px;
+  width: 140px;
   border-radius: 20px;
   box-shadow: 2px 2px 10px gray;
+  transition: transform 0.2s;
+}
+
+.hit {
+  transform: translateX(10px);
 }
 </style>
 </head>
@@ -46,7 +56,7 @@ img {
 <div class="container">
 <h1>🐶わんバトル</h1>
 
-<!-- 選択画面 -->
+<!-- 選択 -->
 <div id="select">
   <h2>犬を選んで！</h2>
   <button onclick="selectDog('chihuahua')">ちわわ</button>
@@ -54,7 +64,7 @@ img {
   <button onclick="selectDog('poodle')">トイプードル</button>
 </div>
 
-<!-- バトル画面 -->
+<!-- バトル -->
 <div id="battle" style="display:none;">
 
   <div class="box">
@@ -97,7 +107,7 @@ function selectDog(type) {
       maxHp:90,
       speed:90,
       trust:60,
-      img:'chihuahua.png'
+      img:'https://placedog.net/300/200?id=1'
     };
   }
 
@@ -108,7 +118,7 @@ function selectDog(type) {
       maxHp:120,
       speed:70,
       trust:70,
-      img:'pomeranian.png'
+      img:'https://placedog.net/300/200?id=2'
     };
   }
 
@@ -119,7 +129,7 @@ function selectDog(type) {
       maxHp:100,
       speed:60,
       trust:90,
-      img:'poodle.png'
+      img:'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgwRJwaOqo7SoJQwKIneEYhb20B84z1WopH6qaLvWO4so8w0x8wAkLF2-rcb8DBeW_jpU64wzuz2-54R1nFdFwuh-sDGxq_BjQwobl6mQKTtC41IL4TybRMeKqKQ26vzs1p5BBwAn1emoxp/s800/dog_toypoodle_brown.png'
     };
   }
 
@@ -129,7 +139,7 @@ function selectDog(type) {
     maxHp:120,
     speed:70,
     trust:60,
-    img:'pomeranian.png'
+    img:'https://placedog.net/300/200?id=3'
   };
 
   document.getElementById("select").style.display="none";
@@ -156,11 +166,13 @@ function updateUI() {
 
 // 技
 function useSkill(skill) {
+
   let log = "";
 
   if(skill === 'bite') {
     if(Math.random() < 0.4){
       enemy.hp -= 25;
+      shake("enemyImg");
       log = "かむ成功！";
     } else {
       log = "かむ失敗...";
@@ -171,6 +183,7 @@ function useSkill(skill) {
     if(Math.random() < 0.6){
       enemy.hp -= 40;
       player.hp -= 10;
+      shake("enemyImg");
       log = "ぱんちヒット！";
     } else {
       log = "ぱんち外れ...";
@@ -184,14 +197,14 @@ function useSkill(skill) {
 
   if(skill === 'charm') {
     if(Math.random() < player.trust / 100){
-      log = "相手は魅了された！";
       enemy.skip = true;
+      log = "魅了成功！";
     } else {
       log = "甘える失敗...";
     }
   }
 
-  if(enemy.hp <= 0) {
+  if(enemy.hp <= 0){
     log = "勝ち！！🎉";
     endGame();
   } else {
@@ -203,6 +216,7 @@ function useSkill(skill) {
 
 // 相手ターン
 function enemyTurn(prevLog) {
+
   let log = prevLog + "<br>";
 
   if(enemy.skip){
@@ -210,15 +224,23 @@ function enemyTurn(prevLog) {
     enemy.skip = false;
   } else {
     player.hp -= 20;
+    shake("playerImg");
     log += "相手の攻撃！";
   }
 
-  if(player.hp <= 0) {
+  if(player.hp <= 0){
     log += "<br>負け...";
     endGame();
   }
 
   document.getElementById("log").innerHTML = log;
+}
+
+// 画像揺れ
+function shake(id){
+  let el = document.getElementById(id);
+  el.classList.add("hit");
+  setTimeout(()=>el.classList.remove("hit"),200);
 }
 
 // 終了
