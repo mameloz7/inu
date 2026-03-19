@@ -1,1 +1,232 @@
-犬
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>わんバトル</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f0f8ff;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.box {
+  border: 2px solid #333;
+  padding: 10px;
+  margin: 10px;
+}
+
+.hp-bar {
+  height: 20px;
+  background: green;
+}
+
+img {
+  width: 150px;
+  border-radius: 20px;
+  box-shadow: 2px 2px 10px gray;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>🐶わんバトル</h1>
+
+<!-- 選択画面 -->
+<div id="select">
+  <h2>犬を選んで！</h2>
+  <button onclick="selectDog('chihuahua')">ちわわ</button>
+  <button onclick="selectDog('pomeranian')">ポメラニアン</button>
+  <button onclick="selectDog('poodle')">トイプードル</button>
+</div>
+
+<!-- バトル画面 -->
+<div id="battle" style="display:none;">
+
+  <div class="box">
+    <h3>相手の犬</h3>
+    <img id="enemyImg">
+    <div id="enemyHP"></div>
+    <p id="enemyName"></p>
+  </div>
+
+  <div class="box">
+    <h3>あなたの犬</h3>
+    <img id="playerImg">
+    <div id="playerHP"></div>
+    <p id="playerName"></p>
+  </div>
+
+  <div>
+    <button onclick="useSkill('bite')">かむ</button>
+    <button onclick="useSkill('punch')">ぱんち</button>
+    <button onclick="useSkill('bark')">吠える</button>
+    <button onclick="useSkill('charm')">甘える</button>
+  </div>
+
+  <p id="log"></p>
+
+</div>
+</div>
+
+<script>
+
+let player, enemy;
+
+// 犬選択
+function selectDog(type) {
+
+  if(type === 'chihuahua') {
+    player = {
+      name:'ちわわ',
+      hp:90,
+      maxHp:90,
+      speed:90,
+      trust:60,
+      img:'chihuahua.png'
+    };
+  }
+
+  if(type === 'pomeranian') {
+    player = {
+      name:'ポメラニアン',
+      hp:120,
+      maxHp:120,
+      speed:70,
+      trust:70,
+      img:'pomeranian.png'
+    };
+  }
+
+  if(type === 'poodle') {
+    player = {
+      name:'トイプードル',
+      hp:100,
+      maxHp:100,
+      speed:60,
+      trust:90,
+      img:'poodle.png'
+    };
+  }
+
+  enemy = {
+    name:'ライバル犬',
+    hp:120,
+    maxHp:120,
+    speed:70,
+    trust:60,
+    img:'pomeranian.png'
+  };
+
+  document.getElementById("select").style.display="none";
+  document.getElementById("battle").style.display="block";
+
+  updateUI();
+}
+
+// UI更新
+function updateUI() {
+
+  document.getElementById("playerName").innerText = player.name + " HP:" + player.hp;
+  document.getElementById("enemyName").innerText = enemy.name + " HP:" + enemy.hp;
+
+  document.getElementById("playerHP").innerHTML =
+    '<div class="hp-bar" style="width:'+(player.hp/player.maxHp*100)+'%"></div>';
+
+  document.getElementById("enemyHP").innerHTML =
+    '<div class="hp-bar" style="width:'+(enemy.hp/enemy.maxHp*100)+'%"></div>';
+
+  document.getElementById("playerImg").src = player.img;
+  document.getElementById("enemyImg").src = enemy.img;
+}
+
+// 技
+function useSkill(skill) {
+  let log = "";
+
+  if(skill === 'bite') {
+    if(Math.random() < 0.4){
+      enemy.hp -= 25;
+      log = "かむ成功！";
+    } else {
+      log = "かむ失敗...";
+    }
+  }
+
+  if(skill === 'punch') {
+    if(Math.random() < 0.6){
+      enemy.hp -= 40;
+      player.hp -= 10;
+      log = "ぱんちヒット！";
+    } else {
+      log = "ぱんち外れ...";
+    }
+  }
+
+  if(skill === 'bark') {
+    enemy.speed -= 10;
+    log = "相手のスピードダウン！";
+  }
+
+  if(skill === 'charm') {
+    if(Math.random() < player.trust / 100){
+      log = "相手は魅了された！";
+      enemy.skip = true;
+    } else {
+      log = "甘える失敗...";
+    }
+  }
+
+  if(enemy.hp <= 0) {
+    log = "勝ち！！🎉";
+    endGame();
+  } else {
+    enemyTurn(log);
+  }
+
+  updateUI();
+}
+
+// 相手ターン
+function enemyTurn(prevLog) {
+  let log = prevLog + "<br>";
+
+  if(enemy.skip){
+    log += "相手は動けない！";
+    enemy.skip = false;
+  } else {
+    player.hp -= 20;
+    log += "相手の攻撃！";
+  }
+
+  if(player.hp <= 0) {
+    log += "<br>負け...";
+    endGame();
+  }
+
+  document.getElementById("log").innerHTML = log;
+}
+
+// 終了
+function endGame(){
+  document.querySelectorAll("button").forEach(b=>b.disabled=true);
+}
+
+</script>
+
+</body>
+</html>
