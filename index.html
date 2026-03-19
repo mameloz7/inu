@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>わんバトル完全版</title>
+<title>わんバトル改良版</title>
 
 <style>
 body {
@@ -56,7 +56,6 @@ img {
 <div class="container">
 <h1>🐶わんバトル</h1>
 
-<!-- 選択 -->
 <div id="select">
   <h2>犬を選んで！</h2>
   <button onclick="selectDog('chihuahua')">ちわわ</button>
@@ -64,7 +63,6 @@ img {
   <button onclick="selectDog('poodle')">トイプードル</button>
 </div>
 
-<!-- バトル -->
 <div id="battle" style="display:none;">
 
   <div class="box">
@@ -97,7 +95,10 @@ img {
 
 let player, enemy;
 
-// 犬選択
+// 🔊音
+const soundAttack = new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
+const soundWin = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+
 function selectDog(type) {
 
   if(type === 'chihuahua') {
@@ -107,7 +108,7 @@ function selectDog(type) {
       maxHp:90,
       speed:90,
       trust:60,
-      img:'https://placedog.net/300/200?id=1'
+      img:'chihuahua.png'
     };
   }
 
@@ -118,7 +119,7 @@ function selectDog(type) {
       maxHp:120,
       speed:70,
       trust:70,
-      img:'https://placedog.net/300/200?id=2'
+      img:'pomeranian.png'
     };
   }
 
@@ -129,17 +130,17 @@ function selectDog(type) {
       maxHp:100,
       speed:60,
       trust:90,
-      img:'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgwRJwaOqo7SoJQwKIneEYhb20B84z1WopH6qaLvWO4so8w0x8wAkLF2-rcb8DBeW_jpU64wzuz2-54R1nFdFwuh-sDGxq_BjQwobl6mQKTtC41IL4TybRMeKqKQ26vzs1p5BBwAn1emoxp/s800/dog_toypoodle_brown.png'
+      img:'poodle.png'
     };
   }
 
   enemy = {
     name:'ライバル犬',
-    hp:120,
-    maxHp:120,
-    speed:70,
+    hp:110,
+    maxHp:110,
+    speed:60,
     trust:60,
-    img:'https://placedog.net/300/200?id=3'
+    img:'pomeranian.png'
   };
 
   document.getElementById("select").style.display="none";
@@ -148,7 +149,6 @@ function selectDog(type) {
   updateUI();
 }
 
-// UI更新
 function updateUI() {
 
   document.getElementById("playerName").innerText = player.name + " HP:" + player.hp;
@@ -164,34 +164,34 @@ function updateUI() {
   document.getElementById("enemyImg").src = enemy.img;
 }
 
-// 技
 function useSkill(skill) {
 
   let log = "";
+  soundAttack.play();
 
   if(skill === 'bite') {
-    if(Math.random() < 0.4){
-      enemy.hp -= 25;
-      shake("enemyImg");
+    if(Math.random() < 0.5){
+      enemy.hp -= 15;
       log = "かむ成功！";
+      shake("enemyImg");
     } else {
       log = "かむ失敗...";
     }
   }
 
   if(skill === 'punch') {
-    if(Math.random() < 0.6){
-      enemy.hp -= 40;
-      player.hp -= 10;
-      shake("enemyImg");
+    if(Math.random() < 0.7){
+      enemy.hp -= 20;
+      player.hp -= 5;
       log = "ぱんちヒット！";
+      shake("enemyImg");
     } else {
       log = "ぱんち外れ...";
     }
   }
 
   if(skill === 'bark') {
-    enemy.speed -= 10;
+    enemy.speed -= 5;
     log = "相手のスピードダウン！";
   }
 
@@ -206,6 +206,7 @@ function useSkill(skill) {
 
   if(enemy.hp <= 0){
     log = "勝ち！！🎉";
+    soundWin.play();
     endGame();
   } else {
     enemyTurn(log);
@@ -214,7 +215,6 @@ function useSkill(skill) {
   updateUI();
 }
 
-// 相手ターン
 function enemyTurn(prevLog) {
 
   let log = prevLog + "<br>";
@@ -223,9 +223,9 @@ function enemyTurn(prevLog) {
     log += "相手は動けない！";
     enemy.skip = false;
   } else {
-    player.hp -= 20;
-    shake("playerImg");
+    player.hp -= 10; // ←弱くした
     log += "相手の攻撃！";
+    shake("playerImg");
   }
 
   if(player.hp <= 0){
@@ -236,14 +236,12 @@ function enemyTurn(prevLog) {
   document.getElementById("log").innerHTML = log;
 }
 
-// 画像揺れ
 function shake(id){
   let el = document.getElementById(id);
   el.classList.add("hit");
   setTimeout(()=>el.classList.remove("hit"),200);
 }
 
-// 終了
 function endGame(){
   document.querySelectorAll("button").forEach(b=>b.disabled=true);
 }
